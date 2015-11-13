@@ -11,13 +11,28 @@ describe 'Inspec::Resources::OsEnv' do
     'LANG' => 'en_US.utf8',
   }}
 
-  it 'verify ntp config parsing' do
-    resource = load_resource('os_env', 'PATH')
-    _(resource.split).must_equal %w{/usr/sbin /usr/bin /sbin /bin}
+  describe 'when reading a specific environment param' do
+    let(:resource) { load_resource('os_env', 'PATH') }
+
+    it 'splits contents of $PATH' do
+      _(resource.split).must_equal %w{/usr/sbin /usr/bin /sbin /bin}
+    end
+
+    it 'retrieves the raw content' do
+      _(resource.content).must_equal params['PATH']
+    end
   end
 
-  it 'can read all environment variables' do
-    resource = load_resource('os_env')
-    _(resource.params).must_equal(params)
+  describe 'when reading all environment params' do
+    let(:resource) { load_resource('os_env') }
+
+    it 'can read all environment variables' do
+      _(resource.params).must_equal(params)
+    end
+
+    it 'can read all environment variables' do
+      _(resource.content).must_be_nil
+    end
   end
+
 end
