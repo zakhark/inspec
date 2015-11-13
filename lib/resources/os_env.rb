@@ -37,8 +37,6 @@ class OsEnv < Inspec.resource(1)
     end
   end
 
-  private
-
   def params
     return @params if defined? @params
     out = inspec.command('env')
