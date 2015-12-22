@@ -112,5 +112,20 @@ describe Inspec::Profile do
         logger.verify
       end
     end
+
+    describe 'a test profile with a non-control test' do
+      let(:profile) { load_profile('non-controls', {logger: logger}) }
+
+      it 'prints many warnings' do
+        logger.expect :info, nil, ["Checking profile in #{home}/mock/profiles/non-controls"]
+        logger.expect :info, nil, ['Metadata OK.']
+        logger.expect :debug, nil, ['Found 1 rules.']
+        logger.expect :debug, nil, ["Verify all rules in  #{home}/mock/profiles/non-controls/test/test.rb"]
+        logger.expect :info, nil, ['Rule definitions OK.']
+
+        profile.check
+        logger.verify
+      end
+    end
   end
 end
