@@ -34,8 +34,9 @@ module Inspec
     # @param [RSpecExampleGroup] example test
     # @param [String] rule_id the ID associated with this check
     # @return [nil]
-    def add_test(example, rule_id)
+    def add_test(example, rule_id, title = nil)
       set_rspec_ids(example, rule_id)
+      set_group_title(example, title) if title
       @tests.register(example)
     end
 
@@ -62,7 +63,7 @@ module Inspec
 
     private
 
-    # Empty the list of registered tests.
+    # Empty the list of registered tests and reset RSpec.configuration
     #
     # @return [nil]
     def reset_tests
@@ -72,6 +73,7 @@ module Inspec
     end
 
     # Configure the output formatter and stream to be used with RSpec.
+    # TODO(sr) ...stream?
     #
     # @return [nil]
     def configure_output
@@ -91,7 +93,6 @@ module Inspec
     #
     # @param [RSpecExampleGroup] example object which contains a check
     # @param [Type] id describe id
-    # @return [Type] description of returned object
     def set_rspec_ids(example, id)
       example.metadata[:id] = id
       example.filtered_examples.each do |e|
@@ -99,6 +100,16 @@ module Inspec
       end
       example.children.each do |child|
         set_rspec_ids(child, id)
+      end
+    end
+
+    def set_group_title(example, title)
+      example.metadata[:group_title] = title
+      example.filtered_examples.each do |e|
+        e.metadata[:group_title] = title
+      end
+      example.children.each do |child|
+        set_group_title(child, title)
       end
     end
   end

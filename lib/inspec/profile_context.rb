@@ -34,6 +34,12 @@ module Inspec
       @profile_context.instance_eval(content, source || 'unknown', line || 1)
     end
 
+    def load_block(p, source = 'unknown', line = 1, title = nil)
+      @current_load = { file: source } # TODO(sr): collect line_no
+      @current_load[:title] = title if title # TODO(sr): add that for load(content, ..) above?
+      @profile_context.instance_eval &p
+    end
+
     def unregister_rule(id)
       full_id = Inspec::Rule.full_id(@profile_id, id)
       @rules[full_id] = nil
@@ -125,6 +131,10 @@ module Inspec
           end
           profile_context_owner.register_rule(rule, &block)
         end
+
+        # NOTE(sr): audit-mode uses `control` where inspec uses `describe`
+        #           so we make quick work of it.
+        alias_method :control, :describe if defined? Chef::DSL
 
         # TODO: mock method for attributes; import attribute handling
         define_method :attributes do |_name, _options|
