@@ -51,6 +51,10 @@ class ComplianceCLI < Thor
   end
 
   desc 'exec PROFILE', 'executes a profile from Chef Compliance'
+  option :report, type: :boolean, desc: 'Send report to Chef Compliance'
+  option :node, type: :string, desc: 'Node name for report'
+  option :env, type: :string, desc: 'Node environment for report'
+  option :owner, type: :string, desc: 'Report owner', default: 'admin'
   def exec(profile)
     config = Compliance::Configuration.new
     profiles = get_profiles
@@ -59,9 +63,15 @@ class ComplianceCLI < Thor
       index = profiles.index { |p| "#{p[:org]}/#{p[:name]}" == profile }
       if index >= 0
         p = profiles[index]
-        # 2. execute the profile with the proper url, inject `inspec exec` with the suitable params`
+        # 2. execute the profile with the proper url and options
         url = "#{config['server']}/owners/#{p[:org]}/compliance/#{p[:name]}/tar"
-        puts "b bin/inspec exec #{url} --user #{config['token']}"
+        runner = Inspec::Runner.new('user'   => config['token'],
+                                    'report' => true)
+        runner.add_tests([url])
+        exit_code = runner.run
+
+        send_report(options['node'], options['owner'], options['env'], p[:name], p[:org], runner.report) if options['report']
+        exit exit_code
       end
     else
       puts "The profile #{profile} is not available"
@@ -152,12 +162,13 @@ class ComplianceCLI < Thor
     send_request(uri, req)
   end
 
-  def post(url, username, password)
+  def post(url, username, password, opts = {})
     # form request
     uri = URI.parse(url)
-    req = Net::HTTP::Post.new(uri.path)
+    req = Net::HTTP::Post.new(uri.path, opts[:headers])
     req.basic_auth username, password
-    req.form_data={}
+    req.form_data = opts[:form_data] if opts[:form_data]
+    req.body = opts[:body] if opts[:body]
 
     send_request(uri, req)
   end
@@ -195,6 +206,20 @@ class ComplianceCLI < Thor
     else
       nil
     end
+  end
+
+  def send_report(node, owner, env, profile, powner, report)
+    report = {
+      node: node,
+      environment: env,
+      owner: powner,
+      profile: profile,
+      output: report
+    }
+
+    config = Compliance::Configuration.new
+    url = "#{config['server']}/owners/#{owner}/inspec" # NOTE: preliminary endpoint
+    post(url, config['token'], nil, headers: { 'Content-Type' => 'application/json' }, body: report.to_json)
   end
 end
 
