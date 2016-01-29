@@ -2,6 +2,9 @@
 # author: Dominik Richter
 # author: Christoph Hartmann
 
+require 'train'
+require 'train/extras'
+
 class OS < Inspec.resource(1)
   name 'os'
   desc 'Use the os InSpec audit resource to test the platform on which the system is running.'
@@ -12,9 +15,10 @@ class OS < Inspec.resource(1)
   "
 
   # reuse helper methods from backend
-  %w{aix? redhat? debian? suse? bsd? solaris? linux? unix? windows?}.each do |os_family|
-    define_method(os_family.to_sym) do
-      inspec.backend.os.send(os_family)
+  Train::Extras::OSCommon::OS.keys.each do |os_family|
+    m = (os_family + '?').to_sym
+    define_method(m) do
+      inspec.backend.os.method(m).call
     end
   end
 
