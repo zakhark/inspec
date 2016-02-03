@@ -59,6 +59,8 @@ module Inspec
     end
 
     def add_tests(tests, options = {})
+      @profile_id = options[:id] if options[:id]
+
       # retrieve the raw ruby code of all tests
       items = tests.map do |test|
         add_test_profile(test, options[:ignore_supports])
