@@ -86,6 +86,7 @@ def inspec_version(target = nil)
     File.write(path, nu)
     load(path)
   end
+  Inspec::VERSION
 end
 
 # Check if a command is available
@@ -145,4 +146,23 @@ task :bump_version, [:version] do |_, args|
   check_update_requirements
   inspec_version(v)
   Rake::Task['changelog'].invoke
+end
+
+task :release_docker do
+  puts 'Build docker image with the latest upstream release'
+  local = inspec_version
+  version = `gem search '^inspec$' --remote`[/\((.*)\)/,1] ||
+            fail("Cannot retrieve the latest upstream version of inspec")
+
+  unless local == version
+    fail("Local version of inspec #{local} does not match upstream. Please release it first.")
+  end
+  puts "Upstream: #{version}"
+
+  system [
+    "docker build -t chef/inspec:#{version} .",
+    "docker tag chef/inspec:#{version} chef/inspec:latest",
+    "docker push chef/inspec:#{version}",
+    "docker push chef/inspec:latest",
+  ].join(" && ")
 end
