@@ -68,6 +68,18 @@ module Inspec::Resources
       info[:version]
     end
 
+    def list(*args)
+      @pkgman.list(*args)
+    rescue StandardError => e
+      skip_resource e.message
+    end
+
+    def updates(*args)
+      @pkgman.updates(*args)
+    rescue StandardError => e
+      skip_resource e.message
+    end
+
     def to_s
       "System Package #{@package_name}"
     end
@@ -77,6 +89,14 @@ module Inspec::Resources
     attr_reader :inspec
     def initialize(inspec)
       @inspec = inspec
+    end
+
+    def list(*_)
+      fail "Cannot retrieve list of packages for #{self}, not yet implemented."
+    end
+
+    def updates(*_)
+      fail "Cannot retrieve list of package updates for #{self}, not yet implemented."
     end
   end
 
@@ -97,6 +117,38 @@ module Inspec::Resources
         version: params['Version'],
         type: 'deb',
       }
+    end
+
+    def list
+      s = "${Status}\t${Package}\t${Version}\t${Architecture}\n"
+      cmd = "dpkg-query -W -f='#{s}'"
+      res = inspec.command(cmd)
+      if res.exit_status != 0 || res.stderr != ''
+        fail "Failed to run dpkg-query for a list of packages: #{res.stderr}"
+      end
+
+      res.stdout.split("\n")
+         .find_all { |x| x.start_with? 'install ok installed' }
+         .map do |line|
+        l = line.split("\t")
+        {
+          name:    l[1],
+          version: l[2],
+          arch:    l[3],
+        }
+      end
+    end
+
+    def updates
+      # DEBIAN_FRONTEND=noninteractive apt-get upgrade --dry-run | grep Inst | tr -d '[]()' |\
+      #  awk '{ printf "{\"name\":\""$2"\",\"version\":\""$4"\",\"repo\":\""$5"\",\"arch\":\""$6"\"}," }' | rev | cut -c 2- | rev | tr -d '\n'
+
+      # F=$(mktemp) &&\
+      # find /etc/apt -name \*.list | xargs -I{} grep ^deb {} | grep security --color=never > $F &&\
+      # DEBIAN_FRONTEND=noninteractive apt-get -s dist-upgrade -o Dir::Etc::SourceList=$F \
+      #   -o Dir::Etc::SourceParts=/dev/null --dry-run | grep Inst | tr -d '[]()' |
+      # awk '{ printf "{\"name\":\""$2"\",\"version\":\""$4"\",\"repo\":\""$5"\",\"arch\":\""$6"\"}," }' | rev | cut -c 2- | rev | tr -d '\n' &&\
+      # rm $F
     end
   end
 
@@ -130,6 +182,53 @@ module Inspec::Resources
         version: "#{v}-#{r}",
         type: 'rpm',
       }
+    end
+
+    def list
+      s = '%{NAME}\t%{VERSION}\t%{RELEASE}\t%{ARCH}\n'
+      cmd = "rpm -qa --queryformat \"#{s.inspect}\""
+      res = inspec.command(cmd)
+      if res.exit_status != 0 || res.stderr != ''
+        fail "Failed to query rpm for a list of packages: #{res.stderr}"
+      end
+
+      res.stdout.split("\n").map do |line|
+        l = line.split("\t")
+        {
+          name:    l[0],
+          version: l[1],
+          release: l[2],
+          arch:    l[3],
+        }
+      end
+    end
+
+    def updates
+      s = [
+        'import sys;',
+        'sys.path.insert(0, "/usr/share/yum-cli");',
+        'import cli;',
+        'list = cli.YumBaseCli().returnPkgLists(["updates"]);',
+        'res = [x.name+"\t"+x.version+"\t"+x.release+"\t"+x.arch+"\t"+x.repo.id for x in list.updates];'\
+        'print "\n".join(res)',
+      ].join
+      cmd = "python -c '#{s}'"
+
+      res = inspec.command(cmd)
+      if res.exit_status != 0 || res.stderr != ''
+        fail "Failed to query yum updates: #{res.stderr}"
+      end
+
+      res.stdout.split("\n").map do |line|
+        l = line.split("\t")
+        {
+          name:    l[0],
+          version: l[1],
+          release: l[2],
+          arch:    l[3],
+          repo:    l[4],
+        }
+      end
     end
   end
 
