@@ -28,6 +28,6 @@ describe 'Inspec::Resources::ApacheConf' do
     _(resource.params('Listen').sort).must_equal ['443', '80']
 
     # sourced using an absolute path in httpd.conf
-    _(resource.params('ExtendedStatus')).must_equal 'Off'
+    _(resource.params('ExtendedStatus')).must_equal ['Off']
   end
 end

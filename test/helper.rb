@@ -118,7 +118,7 @@ class MockLoader
       '/etc/apache2/ports.conf' => mockfile.call('ports.conf'),
       '/etc/httpd/conf/httpd.conf' => mockfile.call('httpd.conf'),
       '/etc/httpd/conf.d/ssl.conf' => mockfile.call('ssl.conf'),
-      '/etc/httpd/sites-enabled/status.conf' => mockfile.call('status.conf'),
+      '/etc/httpd/mods-enabled/status.conf' => mockfile.call('status.conf'),
       '/etc/apache2/conf-enabled/serve-cgi-bin.conf' => mockfile.call('serve-cgi-bin.conf'),
       '/etc/xinetd.conf' => mockfile.call('xinetd.conf'),
       '/etc/xinetd.d' => mockfile.call('xinetd.d'),
