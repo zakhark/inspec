@@ -43,6 +43,12 @@ export class XtermTerminalComponent implements OnInit {
     }
   }
 
+  onPaste(ev) {
+    debugger;
+    console.log(ev);
+    this.term.write(ev.srcElement.value);
+  }
+
   // create Xterm terminal (https://github.com/sourcelair/xterm.js)
   createTerminal() {
     while (this.terminalContainer.children.length) {

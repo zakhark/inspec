@@ -1,1 +1,3 @@
-<div (keyup)="onKey($event)" (keydown)="handleDelete($event)" id="terminal-container"></div>
+<div (keyup)="onKey($event)" (paste)="onPaste($event)" (keydown)="handleDelete($event)" id="terminal-container"></div>
+
+<input (paste)="onPaste($event)">
