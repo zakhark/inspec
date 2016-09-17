@@ -1,0 +1,7 @@
+name: vagrant
+driver:
+  customize:
+    memory: 1024
+platforms:
+  - linux
+  - mac
