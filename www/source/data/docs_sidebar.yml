@@ -3,21 +3,25 @@ sidebar_links:
 - title: Getting Started
   links:
   - title: Overview
-    link: "/docs/overview/"
+    link: "/docs/reference/overview.html"
   - title: Get InSpec
     link: "/under_construction"
   - title: Tutorials
     link: "/docs/tutorials.html"
+  - title: InSpec and friends
+    link: "/docs/reference/inspec_and_friends.html"
 - title: Reference
   links:
-  - title: CLI reference
+  - title: Resources
+    link: "/docs/reference/resources.html"
+  - title: inspec executable
     link: "/docs/reference/cli.html"
-  - title: InSpec shell
+  - title: kitchen-inspec
+    link: "/docs/reference/plugin_kitchen_inspec.html"
+  - title: inspec shell
     link: "/docs/reference/shell.html"
   - title: InSpec DSL
     link: "/docs/reference/dsl_inspec.html"
-  - title: Resources
-    link: "/docs/reference/resources.html"
   - title: Resource DSL
     link: "/docs/reference/dsl_resource.html"
   - title: Matchers
@@ -26,8 +30,6 @@ sidebar_links:
     link: "/docs/reference/profiles.html"
   - title: Ruby usage
     link: "/docs/reference/ruby_usage.html"
-  - title: InSpec and friends
-    link: "/docs/reference/inspec_and_friends.html"
 - title: Contribute
   links:
   - title: Help build InSpec

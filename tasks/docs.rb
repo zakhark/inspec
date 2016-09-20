@@ -55,6 +55,10 @@ class Markdown
       o = opts.map { |k, v| "#{k}: #{v}" }.join("\n")
       "---\n#{o}\n---\n\n"
     end
+
+    def a(name, link)
+      "[#{name}](#{link})"
+    end
   end
 end
 
@@ -100,10 +104,34 @@ class RST
     def meta(_o)
       '' # ignore for now
     end
+
+    def a(_name, _link)
+      throw NotImplementedError
+    end
   end
 end
 
 namespace :docs do
+  desc 'Create resources docs'
+  task :resources do
+    f = Markdown
+    res = f.meta(title: 'InSpec Resources Reference')
+    res << f.h1('InSpec Resources Reference')
+    res << f.p('The following InSpec audit resources are available:')
+
+    list = ''
+    resources = Dir['docs/resources/*.html.md']
+                .map { |x| x.sub('docs/resources/', '').sub('.html.md', '') }
+    resources.each do |resource|
+      list << f.li(f.a(resource, resource + '.html'))
+    end
+    res << f.ul(list)
+
+    dst = 'docs/resources' + f.suffix
+    File.write(dst, res)
+    puts "Documentation generated in #{dst.inspect}"
+  end
+
   desc 'Create cli docs'
   task :cli do
     f = RST
