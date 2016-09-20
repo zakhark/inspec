@@ -108,7 +108,7 @@ namespace :docs do
   task :cli do
     f = RST
     res = f.meta(title: 'About the InSpec CLI')
-    res << f.h1('InSpec CLI')
+    res << f.h1('About the InSpec CLI')
     res << f.p('Use the InSpec CLI to run tests and audits against targets '\
                'using local, SSH, WinRM, or Docker connections.')
 
