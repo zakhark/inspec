@@ -9,6 +9,13 @@ module Compliance
   class ComplianceCLI < Inspec::BaseCLI # rubocop:disable Metrics/ClassLength
     namespace 'compliance'
 
+    # set colors for cli output
+    pink   = "\e[38;5;162m", # used for server
+    orange    = "\e[38;5;208m", # used for inputs
+    blue  = "\e[0;36m", # used for commands
+    gray   = "\e[38;5;248m", # used for helper
+    white  = "\e[37m", # default color
+
     # TODO: find another solution, once https://github.com/erikhuda/thor/issues/261 is fixed
     def self.banner(command, _namespace = nil, _subcommand = false)
       "#{basename} #{subcommand_prefix} #{command.usage}"
@@ -18,7 +25,7 @@ module Compliance
       namespace
     end
 
-    desc "login SERVER --insecure --user='USER' --token='TOKEN'", 'Log in to a Chef Compliance SERVER'
+    desc "#{blue}login #{white}SERVER #{orange}--insecure --user#{white}='USER' #{orange}--token#{white}='TOKEN'", 'Log in to a Chef Compliance SERVER'
     option :insecure, aliases: :k, type: :boolean,
       desc: 'Explicitly allows InSpec to perform "insecure" SSL connections and transfers'
     option :user, type: :string, required: false,
@@ -57,7 +64,7 @@ module Compliance
       puts '', msg
     end
 
-    desc "login_automate SERVER --user='USER' --ent='ENT' --dctoken or --usertoken='TOKEN'", 'Log in to an Automate SERVER'
+    desc "#{blue}login_automate #{white}SERVER #{orange}--user#{white}='USER' #{orange}--ent#{white}='ENT' #{orange}--dctoken #{white}or #{orange}--usertoken#{white}='TOKEN'", 'Log in to an Automate SERVER'
     option :dctoken, type: :string,
       desc: 'Data Collector token'
     option :usertoken, type: :string,
@@ -84,7 +91,7 @@ module Compliance
       puts '', msg
     end
 
-    desc 'profiles', 'list all available profiles in Chef Compliance'
+    desc "#{blue}profiles#{white}", 'list all available profiles in Chef Compliance'
     def profiles
       config = Compliance::Configuration.new
       return if !loggedin(config)
@@ -102,7 +109,7 @@ module Compliance
       end
     end
 
-    desc 'exec PROFILE', 'executes a Chef Compliance profile'
+    desc "#{blue}exec #{white}PROFILE", 'executes a Chef Compliance profile'
     exec_options
     def exec(*tests)
       config = Compliance::Configuration.new
@@ -114,7 +121,7 @@ module Compliance
       run_tests(tests, opts)
     end
 
-    desc 'upload PATH', 'uploads a local profile to Chef Compliance'
+    desc "#{blue}upload #{white}PATH", 'uploads a local profile to Chef Compliance'
     option :overwrite, type: :boolean, default: false,
       desc: 'Overwrite existing profile on Chef Compliance.'
     def upload(path) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, PerceivedComplexity, Metrics/CyclomaticComplexity
@@ -193,7 +200,7 @@ module Compliance
       end
     end
 
-    desc 'version', 'displays the version of the Chef Compliance server'
+    desc "#{blue}version#{white}", 'displays the version of the Chef Compliance server'
     def version
       config = Compliance::Configuration.new
       if config['automate']
@@ -209,7 +216,7 @@ module Compliance
       end
     end
 
-    desc 'logout', 'user logout from Chef Compliance'
+    desc "#{blue}logout#{white}", 'user logout from Chef Compliance'
     def logout
       config = Compliance::Configuration.new
       unless config.supported?(:oidc) || config['token'].nil? || config['automate']
