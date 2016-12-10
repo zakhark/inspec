@@ -6,9 +6,10 @@
 
 require 'utils/simpleconfig'
 require 'utils/find_files'
+require 'resources/file'
 
 module Inspec::Resources
-  class ApacheConf < Inspec.resource(1)
+  class ApacheConf < FileResource
     name 'apache_conf'
     desc 'Use the apache_conf InSpec audit resource to test the configuration settings for Apache. This file is typically located under /etc/apache2 on the Debian and Ubuntu platforms and under /etc/httpd on the Fedora, CentOS, Red Hat Enterprise Linux, and Arch Linux platforms. The configuration settings may vary significantly from platform to platform.'
     example "
@@ -20,6 +21,7 @@ module Inspec::Resources
     include FindFiles
 
     def initialize(conf_path = nil)
+      super
       @conf_path = conf_path || inspec.apache.conf_path
       @conf_dir = conf_path ? File.dirname(@conf_path) : inspec.apache.conf_dir
       @files_contents = {}
