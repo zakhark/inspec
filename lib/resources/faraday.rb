@@ -10,41 +10,48 @@ require 'hashie'
 module Inspec::Resources
   class FaradayResource < Inspec.resource(1)
     name 'faraday'
-    desc 'Use the faraday InSpec audit resource to test .......'
-    example "
-      describe faraday('http://localhost:8080/ping', auth: {user: 'user', pass: 'test'}, params: {format: 'html'}) do
-        its('status') { should cmp 200 }
+    desc 'Use the faraday InSpec audit resource to test HTTP endpoints'
+    example """
+      describe faraday(:url => 'http://sushi.com').get '/nigiri/sake.json' do
         its('body') { should cmp 'pong' }
-        its('headers.Content-Type') { should cmp 'text/html' }
       end
 
-      describe faraday('http://example.com/ping').headers do
-        its('Content-Length') { should cmp 258 }
-        its('Content-Type') { should cmp 'text/html; charset=UTF-8' }
+      describe faraday(:url => 'https://sushi.com', :ssl => {:verify => false}).get '/nigiri', { name: 'Maguro' }
+        its('status') { should cmp 'pong' }
+        its('body') { should cmp 'pong' }
       end
-    "
+
+      describe faraday(:url => 'http://sushi.com').post {url: '/nigiri', headers: { 'Content-Type' => 'application/json' }, body: \"{ 'name': 'Unagi' }\" }
+        its('body.name') { should eq 'Unagi' }
+      end
+
+      describe faraday(:url => 'http://sushi.com') do |conn|
+
+      end do
+
+      end
+    """
 
     # rubocop:disable ParameterLists
-    def initialize(url, auth = {})
-      @url = url
-      @auth = auth
+    def initialize(init_args)
+      @init_args = init_args
     end
 
     def get
-      response.get
+      connection.get
     end
 
     def status
-      response.status
+      connection.status
     end
 
     private
 
-    def response
+    def connection
       puts('!' * 100)
-      puts(@auth)
-      conn = Faraday.new(@url)
-      conn.basic_auth(@auth[:user], @auth[:pass]) unless @auth.empty?
+      # puts(@auth)
+      conn = Faraday.new(**@init_args)
+      # conn.basic_auth(@auth[:user], @auth[:pass]) unless @auth.empty?
       conn
     end
   end
