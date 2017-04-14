@@ -51,4 +51,11 @@ describe 'Inspec::Resources::Http' do
     _(resource.status).must_equal 200
     _(resource.body).must_equal 'params ok'
   end
+
+  # it 'verify http with ssl_verify' do
+  #   stub_request(:get, "www.example.com").with(ssl: {verify: false}).to_return(status: 200)
+  #
+  #   resource = load_resource('http', 'https://www.example.com', ssl_verify: false)
+  #   _(resource.status).must_equal 200
+  # end
 end

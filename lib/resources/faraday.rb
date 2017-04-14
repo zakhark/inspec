@@ -9,9 +9,23 @@ require 'hashie'
 
 module Inspec::Resources
   class FaradayResource < Inspec.resource(1)
+    # include forwardable
+
     name 'faraday'
     desc 'Use the faraday InSpec audit resource to test HTTP endpoints'
     example """
+      describe faraday('http://sushi.com').get do
+        its('body') { should cmp 'Spicy Crab' }
+      end
+
+      describe faraday('http://sushi.com', params: {page: 1}).get do
+        its('body') { should cmp 'Spicy Crab' }
+      end
+
+      describe faraday(url: 'http://sushi.com', params: {page: 1}).get do
+        its('body') { should cmp 'Spicy Crab' }
+      end
+
       describe faraday(:url => 'http://sushi.com').get '/nigiri/sake.json' do
         its('body') { should cmp 'pong' }
       end
@@ -33,26 +47,40 @@ module Inspec::Resources
     """
 
     # rubocop:disable ParameterLists
-    def initialize(init_args)
-      @init_args = init_args
+    def initialize(url=nil, params={})
+      # @init_args = init_args
+      @url = url
+      @params = params
     end
+
+    # def_delegate connection, :get, :post, #...
 
     def get
       connection.get
     end
 
     def status
-      connection.status
+      response.status
+    end
+
+    def body
+      response.body
     end
 
     private
 
     def connection
-      puts('!' * 100)
-      # puts(@auth)
-      conn = Faraday.new(**@init_args)
-      # conn.basic_auth(@auth[:user], @auth[:pass]) unless @auth.empty?
-      conn
+      @conn ||= Faraday.new(@url, @params) # do |conn|
+      #   conn.basic_auth :foo, :Bar
+      # end
+      # @conn.basic_auth(@auth[:user], @auth[:pass]) unless @auth.empty?
+      # @conn
+    end
+
+    def response
+      @response = connection.send('get') do |req|
+        req.body = {}
+      end
     end
   end
 end
