@@ -9,15 +9,26 @@ if !os.linux?
   return
 end
 
+# @todo add a disabled kernel module with /bin/true and /bin/false
 # Test kernel modules on all linux systems
+
 describe kernel_module('video') do
   it { should be_loaded }
+  it { should be_enabled }
+  it { should_not be_blacklisted }
 end
 
 describe kernel_module('bridge') do
   it { should_not be_loaded }
+  it { should_not be_enabled }
 end
 
 describe kernel_module('dhcp') do
   it { should_not be_loaded }
+end
+
+describe kernel_module('floppy') do
+  it { should be_blacklisted }
+  it { should be_disabled }
+  it { should_not be_enabled }
 end
