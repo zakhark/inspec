@@ -212,18 +212,17 @@ describe Inspec::Profile do
       let(:profile) { MockLoader.load_profile(profile_path, {logger: logger}) }
 
       it 'prints ok messages and counts the controls' do
-        logger.expect :info, nil, ["Checking profile in #{home}/mock/profiles/#{profile_id}"]
+        logger.expect :info, nil, ["Checking profile in #{profile_path}"]
         logger.expect :info, nil, ['Metadata OK.']
         logger.expect :info, nil, ['Found 1 controls.']
         logger.expect :info, nil, ['Control definitions OK.']
 
-        result = MockLoader.load_profile(profile_id, {logger: logger}).check
-        # verify logger output
+        result = profile.check
         logger.verify
 
         # verify hash result
         result[:summary][:valid].must_equal true
-        result[:summary][:location].must_equal "#{home}/mock/profiles/#{profile_id}"
+        result[:summary][:location].must_equal profile_path
         result[:summary][:profile].must_equal 'complete'
         result[:summary][:controls].must_equal 1
         result[:errors].length.must_equal 0
@@ -237,18 +236,17 @@ describe Inspec::Profile do
       let(:profile) { MockLoader.load_profile(profile_path, {logger: logger}) }
 
       it 'prints ok messages and counts the controls' do
-        logger.expect :info, nil, ["Checking profile in #{home}/mock/profiles/#{profile_id}"]
+        logger.expect :info, nil, ["Checking profile in #{profile_path}"]
         logger.expect :info, nil, ['Metadata OK.']
         logger.expect :info, nil, ['Found 1 controls.']
         logger.expect :info, nil, ['Control definitions OK.']
 
-        result = MockLoader.load_profile(profile_id, {logger: logger}).check
-        # verify logger output
+        result = profile.check
         logger.verify
 
         # verify hash result
         result[:summary][:valid].must_equal true
-        result[:summary][:location].must_equal "#{home}/mock/profiles/#{profile_id}"
+        result[:summary][:location].must_equal profile_path
         result[:summary][:profile].must_equal 'complete'
         result[:summary][:controls].must_equal 1
         result[:errors].length.must_equal 0
