@@ -66,48 +66,25 @@ module Inspec::Resources
       !found.nil?
     end
 
-    # @note maintain logcal agreement with 'disabled?' method
+    # @note maintain logical agreement with 'disabled?' method
     alias enabled? loaded?
 
-    def blacklisted?
-      if inspec.os.redhat? || inspec.os.name == 'fedora'
-        modprobe_cmd = "/sbin/modprobe --showconfig | grep blacklist | grep #{@module}"
-      else
-        modprobe_cmd = "modprobe --showconfig | grep blacklist | grep #{@module}"
-      end
-      cmd = inspec.command(modprobe_cmd)
-      cmd.exit_status.zero? ? cmd.stdout.delete("\n") : nil
-    end
-
     # @todo add a 'kernel.modules_disabled' check as well from grub.conf
+
     def disabled?
-      if inspec.os.redhat? || inspec.os.name == 'fedora'
-        modprobe_cmd = "/sbin/modprobe --showconfig | grep \"^install\" | grep \"/bin\" | grep -E \"(true|false)\" | grep #{@module}"
-      else
-        modprobe_cmd = "modprobe --showconfig | grep \"^install\" | grep \"/bin\" | grep -E \"(true|false)\" | grep #{@module}"
-      end
-      cmd = inspec.command(modprobe_cmd)
-      cmd.exit_status.zero? ? cmd.stdout.delete("\n") : nil
+      modprobe_output.match?(%r{^install\s+#{@module}\s+/(s?)bin/(true|false)})
     end
 
     def disabled_via_bin_true?
-      if inspec.os.redhat? || inspec.os.name == 'fedora'
-        modprobe_cmd = "/sbin/modprobe --showconfig | grep \"^install\" | grep \"/bin\" | grep \"true\" | grep #{@module}"
-      else
-        modprobe_cmd = "modprobe --showconfig | grep \"^install\" | grep \"/bin\" | grep \"true\" | grep #{@module}"
-      end
-      cmd = inspec.command(modprobe_cmd)
-      cmd.exit_status.zero? ? cmd.stdout.delete("\n") : nil
+      modprobe_output.match?(%r{^install\s+#{@module}\s+/(s?)bin/true})
     end
 
     def disabled_via_bin_false?
-      if inspec.os.redhat? || inspec.os.name == 'fedora'
-        modprobe_cmd = "/sbin/modprobe --showconfig | grep \"^install\" | grep \"/bin\" | grep \"false\" | grep #{@module}"
-      else
-        modprobe_cmd = "modprobe --showconfig | grep \"^install\" | grep \"/bin\" | grep \"false\" | grep #{@module}"
-      end
-      cmd = inspec.command(modprobe_cmd)
-      cmd.exit_status.zero? ? cmd.stdout.delete("\n") : nil
+      modprobe_output.match?(%r{^install\s+#{@module}\s+/(s?)bin/false})
+    end
+
+    def blacklisted?
+      modprobe_output.match?(%r{^blacklist\s+#{@module}})
     end
 
     def version
@@ -122,6 +99,20 @@ module Inspec::Resources
 
     def to_s
       "Kernel Module #{@module}"
+    end
+
+    private
+
+    def modprobe_output
+      @modprobe_output ||= inspec.command("#{modprobe_cmd_for_os} --showconfig").stdout
+    end
+
+    def modprobe_cmd_for_os
+      if inspec.os.redhat? || inspec.os.name == 'fedora'
+        '/sbin/modprobe --showconfig'
+      else
+        'modprobe --showconfig'
+      end
     end
   end
 end
