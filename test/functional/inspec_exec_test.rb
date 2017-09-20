@@ -64,7 +64,7 @@ Test Summary: 0 successful, 0 failures, 0 skipped
   it 'executes a specs-only profile' do
     out = inspec('exec ' + File.join(profile_path, 'spec_only') + ' --no-create-lockfile')
     out.stderr.must_equal ''
-    out.exit_status.must_equal 1
+    out.exit_status.must_equal 101
     out.stdout.force_encoding(Encoding::UTF_8).must_include "Target:  local://"
     out.stdout.force_encoding(Encoding::UTF_8).must_include "working should"
     out.stdout.force_encoding(Encoding::UTF_8).must_include "✔  eq \"working\""
@@ -285,7 +285,7 @@ Test Summary: \e[38;5;41m2 successful\e[0m, 0 failures, 0 skipped\n"
     it 'hides sensitive output' do
       out = inspec('exec ' + sensitive_profile  + ' --no-create-lockfile')
       out.stderr.must_equal ''
-      out.exit_status.must_equal 1
+      out.exit_status.must_equal 101
       stdout = out.stdout.force_encoding(Encoding::UTF_8)
       stdout.must_include '∅  eq "billy"'
       stdout.must_include 'expected: "billy"'
@@ -293,6 +293,27 @@ Test Summary: \e[38;5;41m2 successful\e[0m, 0 failures, 0 skipped\n"
       stdout.must_include '∅  eq "secret"'
       stdout.must_include '*** sensitive output suppressed ***'
       stdout.must_include "\nTest Summary: \e[38;5;41m2 successful\e[0m, \e[38;5;9m2 failures\e[0m, 0 skipped\n"
+    end
+  end
+
+  describe 'with a critcally failing control' do
+    it 'exits with a status of 100' do
+      out = inspec('exec ' + File.join(profile_path, 'failure-critical'))
+      out.exit_status.must_equal 100
+    end
+  end
+
+  describe 'with a majorly failing control' do
+    it 'exits with a status of 101' do
+      out = inspec('exec ' + File.join(profile_path, 'failure-major'))
+      out.exit_status.must_equal 101
+    end
+  end
+
+  describe 'with a minorly failing control' do
+    it 'exits with a status of 102' do
+      out = inspec('exec ' + File.join(profile_path, 'failure-minor'))
+      out.exit_status.must_equal 102
     end
   end
 end

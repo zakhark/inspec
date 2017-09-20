@@ -80,7 +80,8 @@ module Inspec
 
       runner = Inspec::Runner.new(o)
       targets.each { |target| runner.add_target(target) }
-      exit runner.run
+      runner.run
+      exit determine_exit_code(runner.report)
     rescue ArgumentError, RuntimeError, Train::UserError => e
       $stderr.puts e.message
       exit 1
@@ -214,6 +215,36 @@ module Inspec
 
     def li(entry)
       puts " #{mark_text('*')} #{entry}"
+    end
+
+    def determine_exit_code(failures)
+      failures = count_failures(runner.report)
+      if failures[:critical] > 0
+        exit_code = 100
+      elsif failures[:major] > 0
+        exit_code = 101
+      elsif failures[:minor] > 0
+        exit_code = 102
+      else
+        exit_code = 0
+      end
+
+      exit_code
+    end
+
+    def count_failures(report)
+      failures = { critical: 0, major: 0, minor: 0 }
+      report[:profiles].each do |profile|
+        profile[:controls].each do |control|
+          next if control[:results].nil?
+          control[:results].each do |result|
+            failures[:critical] += 1 if result[:status_type] == 'critical'
+            failures[:major] += 1 if result[:status_type] == 'major'
+            failures[:minor] += 1 if result[:status_type] == 'minor'
+          end
+        end
+      end
+      failures
     end
   end
 end
