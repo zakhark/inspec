@@ -217,7 +217,7 @@ module FilterTable
           begin
             filter = table.new(self, method(table_accessor).call, ' with')
             filter.method(method_name.to_sym).call(*args, &block)
-          rescue Inspec::Exceptions::ResourceSkipped => e
+          rescue Inspec::Exceptions::ResourceFailed, Inspec::Exceptions::ResourceSkipped => e
             FilterTable::ExceptionCatcher.new(resource, e)
           end
         end
