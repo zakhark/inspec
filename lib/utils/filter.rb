@@ -7,9 +7,10 @@ module FilterTable
   module Show; end
 
   class ExceptionCatcher
-    def initialize(original_resource, original_exception)
+    def initialize(original_resource, original_exception, accessors)
       @original_resource = original_resource
       @original_exception = original_exception
+      @accessors = accessors
     end
 
     def resource_skipped?
@@ -25,6 +26,8 @@ module FilterTable
     end
 
     def method_missing(*args)
+      return ExceptionCatcher.new(@original_resource, @original_exception, @accessors) if @accessors.include?(args.first)
+
       raise @original_exception
     end
 
@@ -218,7 +221,7 @@ module FilterTable
             filter = table.new(self, method(table_accessor).call, ' with')
             filter.method(method_name.to_sym).call(*args, &block)
           rescue Inspec::Exceptions::ResourceFailed, Inspec::Exceptions::ResourceSkipped => e
-            FilterTable::ExceptionCatcher.new(resource, e)
+            FilterTable::ExceptionCatcher.new(resource, e, accessors)
           end
         end
       end
