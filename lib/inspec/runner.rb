@@ -97,7 +97,7 @@ module Inspec
     def run(with = nil)
       Inspec::Log.debug "Starting run with targets: #{@target_profiles.map(&:to_s)}"
       load
-      run_tests(with)
+      run_data = run_tests(with)
     end
 
     def write_lockfile(profile)
