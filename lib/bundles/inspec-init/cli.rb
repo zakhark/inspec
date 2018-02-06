@@ -1,5 +1,4 @@
 # encoding: utf-8
-# author: Christoph Hartmann
 
 require 'pathname'
 
@@ -36,6 +35,11 @@ module Init
     # 2. read content in erb
     # 3. write to target
     def generator(type, attributes = {}, options = {}) # rubocop:disable Metrics/AbcSize
+      if %r{[\/\\]} =~ attributes[:name]
+        error "The profile name (#{attributes[:name]}) contains a slash " \
+          'which is not permitted. Please remove all slashes from your profile name.'
+        exit 1
+      end
       # path of this script
       dir = File.dirname(__FILE__)
       # look for template directory
