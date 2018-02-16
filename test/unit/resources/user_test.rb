@@ -36,12 +36,24 @@ describe 'Inspec::Resources::User' do
   # serverspec compatibility tests (do not test matcher)
   it 'verify serverspec compatibility' do
     resource = MockLoader.new(:ubuntu1404).load_resource('user', 'root')
-    _(resource.has_uid?(0)).must_equal true
-    _(resource.has_home_directory?('/root')).must_equal true
-    _(resource.has_login_shell?('/bin/bash')).must_equal true
-    _(resource.minimum_days_between_password_change).must_equal 0
-    _(resource.maximum_days_between_password_change).must_equal 99999
+    _(resource.mindays).must_equal 0
+    _(resource.maxdays).must_equal 99999
     # _(resource.has_authorized_key?('abc')).must_equal true
+  end
+
+  it 'returns deprecation notices' do
+    resource = MockLoader.new(:ubuntu1404).load_resource('user', 'root')
+
+    proc { resource.has_uid?(3) }
+      .must_output nil, "[DEPRECATION] has_uid? is deprecated. \n"
+    proc { resource.has_home_directory?('/root') }
+      .must_output nil, "[DEPRECATION] has_home_directory? is deprecated. Please use: its('home')\n"
+    proc { resource.has_login_shell?('/bin/bash') }
+      .must_output nil, "[DEPRECATION] has_login_shell? is deprecated. Please use: its('shell')\n"
+    proc { resource.minimum_days_between_password_change }
+      .must_output nil, "[DEPRECATION] minimum_days_between_password_change is deprecated. Please use: its('mindays')\n"
+    proc { resource.maximum_days_between_password_change }
+      .must_output nil, "[DEPRECATION] maximum_days_between_password_change is deprecated. Please use: its('maxdays')\n"
   end
 
   it 'read user on centos7' do
