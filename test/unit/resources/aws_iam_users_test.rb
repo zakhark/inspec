@@ -87,7 +87,6 @@ class AwsIamUsersTestFilterCriteria < Minitest::Test
   def test_users_criteria_has_password_last_used_days_ago_10
     AwsIamUsers::BackendFactory.select(Maiusb::Basic)
     users = AwsIamUsers.new.where(password_last_used_days_ago: 10)
-    puts users
     assert(1, users.entries.count)
     assert_includes users.entries.map{ |u| u[:user_name] }, 'bob'
     refute_includes users.entries.map{ |u| u[:user_name] }, 'alice'
