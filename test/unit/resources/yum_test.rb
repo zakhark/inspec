@@ -1,6 +1,4 @@
 # encoding: utf-8
-# author: Christoph Hartmann
-# author: Dominik Richter
 
 require 'helper'
 require 'inspec/resource'
@@ -78,7 +76,9 @@ describe 'Inspec::Resources::YumRepo' do
 
   it 'test enabled extra repo (serverspec backwards comptability)' do
     serverspec = load_resource('yumrepo', 'extras')
-    _(serverspec.exists?).must_equal true
-    _(serverspec.enabled?).must_equal true
+    proc { _(serverspec.exists?).must_equal true }
+      .must_output nil, "[DEPRECATION] `yumrepo(reponame)` is deprecated.  Please use `yum.repo(reponame)` instead.\n"
+    proc { _(serverspec.enabled?).must_equal true }
+      .must_output nil, "[DEPRECATION] `yumrepo(reponame)` is deprecated.  Please use `yum.repo(reponame)` instead.\n"
   end
 end
