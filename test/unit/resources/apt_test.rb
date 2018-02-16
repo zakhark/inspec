@@ -57,7 +57,7 @@ describe 'Inspec::Resources::AptRepo' do
 
   # check ppa resource
   it 'check apt on ubuntu' do
-    resource = MockLoader.new(:ubuntu1504).load_resource('ppa', 'ubuntu-wine/ppa')
+    resource = MockLoader.new(:ubuntu1504).load_resource('apt', 'ubuntu-wine/ppa')
     _(resource.exists?).must_equal true
     _(resource.enabled?).must_equal true
   end
