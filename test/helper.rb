@@ -433,6 +433,7 @@ class MockLoader
       "5c2bc0f0568d11451d6cf83aff02ee3d47211265b52b6c5d45f8e57290b35082" => cmd.call('mssql-getdate'),
       # oracle
       "bash -c 'type \"sqlplus\"'" => cmd.call('oracle-cmd'),
+      "bash -c 'type \"sql\"'" => cmd_exit_1.call('sql-cmd-not-found'),
       "527f243fe9b01fc7b7d78eb1ef5200e272b011aa07c9f59836d950107d6d2a5c" => cmd.call('oracle-result'),
       # nginx mock cmd
       %{nginx -V 2>&1} => cmd.call('nginx-v'),
