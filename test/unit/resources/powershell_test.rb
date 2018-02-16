@@ -1,6 +1,4 @@
 # encoding: utf-8
-# author: Christoph Hartmann
-# author: Dominik Richter
 
 require 'helper'
 require 'inspec/resource'
@@ -19,9 +17,11 @@ describe 'Inspec::Resources::Powershell' do
   end
 
   it 'check if legacy `script` for windows is properly generated ' do
-    resource = MockLoader.new(:windows).load_resource('script', ps1_script)
+    proc {
+      resource = MockLoader.new(:windows).load_resource('script', ps1_script)
+      resource.command.to_s.must_equal ps1_script
+    }.must_output nil, "[DEPRECATION] `script(script)` is deprecated.  Please use `powershell(script)` instead.\n"
     # string should be the same
-    _(resource.command.to_s).must_equal ps1_script
   end
 
   it 'will return an empty array when called on a non-supported OS with children' do
