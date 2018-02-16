@@ -1,5 +1,27 @@
 require 'helper'
 
+class FakeConfig
+  def initialize
+    @config = {}
+  end
+
+  def [](key)
+    @config[key]
+  end
+
+  def []=(key, value)
+    @config[key] = value
+  end
+
+  def clean
+    @config = {}
+  end
+
+  def store
+    nil
+  end
+end
+
 describe Compliance::API do
   let(:automate_options) do
     {
@@ -21,28 +43,6 @@ describe Compliance::API do
   end
 
   let(:fake_config) do
-    class FakeConfig
-      def initialize
-        @config = {}
-      end
-
-      def [](key)
-        @config[key]
-      end
-
-      def []=(key, value)
-        @config[key] = value
-      end
-
-      def clean
-        @config = {}
-      end
-
-      def store
-        nil
-      end
-    end
-
     FakeConfig.new
   end
 
