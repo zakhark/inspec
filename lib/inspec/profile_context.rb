@@ -1,6 +1,4 @@
 # encoding: utf-8
-# author: Dominik Richter
-# author: Christoph Hartmann
 require 'inspec/log'
 require 'inspec/rule'
 require 'inspec/resource'
@@ -28,6 +26,7 @@ module Inspec
       @profile_id = profile_id
       @backend = backend
       @conf = conf.dup
+      @current_load = nil
       @skip_only_if_eval = @conf['check_mode']
       @rules = {}
       @control_subcontexts = []
