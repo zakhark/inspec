@@ -54,14 +54,16 @@ describe 'BaseCLI' do
     end
 
     it 'make sure default reporter is overriden by json-config format' do
-      default_options['reporter'] = ['cli']
-      Inspec::BaseCLI.stubs(:default_options).returns(default_options)
-      parsed_json = { 'format' => 'json' }
-      cli.expects(:options_json).returns(parsed_json)
+      proc {
+        default_options['reporter'] = ['cli']
+        Inspec::BaseCLI.stubs(:default_options).returns(default_options)
+        parsed_json = { 'format' => 'json' }
+        cli.expects(:options_json).returns(parsed_json)
 
-      opts = cli.send(:merged_opts, :exec)
-      expected = {"backend_cache"=>false, "reporter"=>{"json"=>{"stdout"=>true}}}
-      opts.must_equal expected
+        opts = cli.send(:merged_opts, :exec)
+        expected = {"backend_cache"=>false, "reporter"=>{"json"=>{"stdout"=>true}}}
+        opts.must_equal expected
+      }.must_output nil, "[DEPRECATED] The option --format is being is being deprecated and will be removed in inspec 3.0. Please use --reporter\n"
     end
   end
 
@@ -114,10 +116,12 @@ describe 'BaseCLI' do
     end
 
     it 'parse cli reporters with format' do
-      opts = { 'format' => 'json' }
-      parsed = Inspec::BaseCLI.parse_reporters(opts)
-      assert = { 'reporter' => { 'json' => { 'stdout' => true }}}
-      parsed.must_equal assert
+      proc {
+        opts = { 'format' => 'json' }
+        parsed = Inspec::BaseCLI.parse_reporters(opts)
+        assert = { 'reporter' => { 'json' => { 'stdout' => true }}}
+        parsed.must_equal assert
+      }.must_output nil, "[DEPRECATED] The option --format is being is being deprecated and will be removed in inspec 3.0. Please use --reporter\n"
     end
   end
 

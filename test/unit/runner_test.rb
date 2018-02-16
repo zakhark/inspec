@@ -21,18 +21,22 @@ describe Inspec::Runner do
       end
 
       it 'does not default when format is set' do
-        opts = { command_runner: :generic, backend_cache: true, 'format' => 'json' }
-        runner = Inspec::Runner.new(opts)
-        config = runner.instance_variable_get(:"@conf")
-        expected = { 'json' => { 'stdout' => true } }
-        config['reporter'].must_equal expected
+        proc {
+          opts = { command_runner: :generic, backend_cache: true, 'format' => 'json' }
+          runner = Inspec::Runner.new(opts)
+          config = runner.instance_variable_get(:"@conf")
+          expected = { 'json' => { 'stdout' => true } }
+          config['reporter'].must_equal expected
+        }.must_output nil, "[DEPRECATED] The option --format is being is being deprecated and will be removed in inspec 3.0. Please use --reporter\n"
       end
 
       it 'delets format if set to a rspec format' do
-        opts = { command_runner: :generic, backend_cache: true, 'format' => 'progress' }
-        runner = Inspec::Runner.new(opts)
-        config = runner.instance_variable_get(:"@conf")
-        config['reporter'].must_equal Hash.new
+        proc {
+          opts = { command_runner: :generic, backend_cache: true, 'format' => 'progress' }
+          runner = Inspec::Runner.new(opts)
+          config = runner.instance_variable_get(:"@conf")
+          config['reporter'].must_equal Hash.new
+        }.must_output nil, "[DEPRECATED] The option --format is being is being deprecated and will be removed in inspec 3.0. Please use --reporter\n"
       end
     end
 
