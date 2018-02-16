@@ -1,7 +1,6 @@
 # encoding: utf-8
 # copyright: 2017, Criteo
 # copyright: 2017, Chef Software Inc
-# author: Guilhem Lettron, Christoph Hartmann
 # license: Apache v2
 
 require 'faraday'
@@ -74,6 +73,7 @@ module Inspec::Resources
           @http_method = http_method
           @url = url
           @opts = opts
+          @response = nil
         end
 
         private
@@ -151,7 +151,7 @@ module Inspec::Resources
             raise Inspec::Exceptions::ResourceSkipped,
                   'curl is not available on the target machine'
           end
-
+          @ran_curl = nil
           @inspec = inspec
           super(http_method, url, opts)
         end

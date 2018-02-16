@@ -1,7 +1,5 @@
 # encoding: utf-8
 # Copyright 2015 Dominik Richter
-# author: Dominik Richter
-# author: Christoph Hartmann
 
 require 'forwardable'
 require 'openssl'
@@ -97,6 +95,8 @@ module Inspec
       @tests_collected = false
       @libraries_loaded = false
       @check_mode = options[:check_mode] || false
+      @supports_platform = nil
+      @supports_runtime = nil
       Metadata.finalize(@source_reader.metadata, @profile_id, options)
 
       # if a backend has already been created, clone it so each profile has its own unique backend object

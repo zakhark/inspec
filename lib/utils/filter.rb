@@ -1,7 +1,4 @@
 # encoding: utf-8
-# author: Dominik Richter
-# author: Stephan Renatus
-# author: Christoph Hartmann
 
 module FilterTable
   module Show; end
@@ -180,6 +177,7 @@ module FilterTable
     def initialize
       @accessors = []
       @connectors = {}
+      @resource = nil
     end
 
     def connect(resource, table_accessor) # rubocop:disable Metrics/AbcSize
