@@ -1,6 +1,4 @@
 # encoding: utf-8
-# author: Christoph Hartmann
-# author: Dominik Richter
 
 require 'helper'
 require 'inspec/resource'
@@ -13,7 +11,7 @@ describe 'Inspec::Resources::Processes' do
 
   it 'verify processes resource' do
     resource = MockLoader.new(:freebsd10).load_resource('processes', 'login -fp apop')
-    _(resource.list.length).must_equal 2      # until we deprecate
+    _(resource.entries.length).must_equal 2
     _(resource.entries.length).must_equal 2
     _(resource.entries[0].to_h).must_equal({
       label: nil,
