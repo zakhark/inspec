@@ -55,11 +55,6 @@ module Inspec::Resources
       "Processes #{@grep.class == String ? @grep : @grep.inspect}"
     end
 
-    def list
-      warn '[DEPRECATION] `processes.list` is deprecated. Please use `processes.entries` instead. It will be removed in version 2.0.0.'
-      @list
-    end
-
     filter = FilterTable.create
     filter.add_accessor(:where)
           .add_accessor(:entries)
