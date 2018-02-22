@@ -64,6 +64,7 @@ module Inspec
     end
 
     def profile_supports_platform?
+      return true if @conf['check_mode']
       return true if @conf['profile'].nil?
 
       @conf['profile'].supports_platform?

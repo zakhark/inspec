@@ -43,11 +43,14 @@ module Inspec
       Inspec::Resource.registry
     end
 
-    def __register(name, obj) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def __register(name, obj) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
       cl = Class.new(obj) do # rubocop:disable Metrics/BlockLength
         attr_reader :resource_exception_message
 
         def initialize(backend, name, *args)
+          is_mock_transport = defined?(Train::Transports::Mock::Connection) && backend.backend.class == Train::Transports::Mock::Connection
+          return if is_mock_transport
+
           @resource_skipped = false
           @resource_failed = false
           @supports = Inspec::Resource.supports[name]
@@ -59,14 +62,10 @@ module Inspec
           # check resource supports
           supported = true
           supported = check_supports unless @supports.nil?
-          if defined?(Train::Transports::Mock::Connection) && backend.backend.class == Train::Transports::Mock::Connection
-            # do not exit out for tests
-          elsif supported == false
-            # do not run resource initalize if we are unsupported
-            return
-          end
 
-          # call the resource initializer
+          # Do not run resource initialize if not supported
+          return unless supported
+
           begin
             super(*args)
           rescue Inspec::Exceptions::ResourceSkipped => e
