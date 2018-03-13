@@ -59,7 +59,7 @@ The following methods are available to the resource:
 * inspec - A reference to the `Inspec::Runner` object, which provides context. For example, it contains a registry of resources which you may use to interact with the operating system or target in general.
 * skip\_resource - A resource may call this method to indicate that requirements aren't met. All tests that use this resource will be marked as skipped.
 
-The following example shows a full resource to provide simple access to a configuration file.  It allows you to specify the path to the configuraion file, and then exposes one matcher (`be_illuminated`) and one property (`color`).
+The following example shows a full resource which provides simple access to a configuration file. It allows you to specify the path to the configuraion file, and then exposes one matcher (`be_illuminated`) and one property (`color`).
 
 ```ruby
 class SignalLampConfig < Inspec.resource(1)
@@ -91,6 +91,8 @@ class SignalLampConfig < Inspec.resource(1)
 
   # Expose a matcher, be_illuminated.  Anything ending in '?' 
   # will be treated as a matcher, and will have 'be_' prefixed.
+  # You may also name matchers with a `has_` prefix, which will
+  # be transformed to `have_`. 
   def illuminated?
     @config_contents['status'] == 'on'
   end
@@ -99,7 +101,8 @@ class SignalLampConfig < Inspec.resource(1)
 
   def read_content
     # Keep in mind the file is on the remote machine being tested, not 
-    # on the local machine running InSpec. This re-uses an existing 
+    # on the local machine running InSpec. So, using traditional Ruby
+    # file-reading methods won't work.  This example uses an existing 
     # InSpec resource, `file`, to read the config file's contents.
     f = inspec.file(@path)
     # Test if the path exists and that it's a file
@@ -113,3 +116,46 @@ class SignalLampConfig < Inspec.resource(1)
   end
 end
 ```
+
+## Adding tests to your resource
+
+(TODO: brief intro to why testing is so important on a security product)
+
+### Adding a test harness
+
+(TODO: explain adding a Gemfile and Rakefile; provide a default)
+
+### Unit testing InSpec Resources
+
+(TODO: add a unit helper file)
+
+### Integration testing InSpec Resources 
+
+(TODO: explain adding integration tests that drive the inspec executable)
+
+## Contributing a Resource to InSpec Core
+
+## Design Considerations for InSpec Resources
+
+### Start Small
+
+It's often best to start by creating a bare-bones resource.  If you limit functionality to being able detect the resource on the target and implementing the `exists` matcher, you will have an excellent, clean base from which to start.  A "skeletal" resource lays out the test files, documentation, and the structure of the resource source code, without implementing any difficult or controversial features.  That allows the pull request review process to proceed more quickly.
+
+### Singular vs Plural
+
+One of the earliest distinctions you will need to make when designing a resource is whether you want to have in-depth auditing of a single resource, or bulk detection of groups of the same resource type.  For example, compare the [package](https://www.inspec.io/docs/reference/resources/package/) and [packages](https://www.inspec.io/docs/reference/resources/packages/) resources.  `package` 
+
+### Properties vs Matchers
+
+### Dealing with Complex Properties
+
+### Fluent Naming
+
+* RSpec naming transforms
+* Matcher.alias_matcher
+
+### Low-Level and High Level Features
+
+### Exception handling
+
+### Lazy properties
