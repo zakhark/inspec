@@ -42,7 +42,6 @@ build do
   # appbundle-lock to are definitely installed
   bundle 'install --without test integration tools maintenance', env: env
 
-  gem 'unf_ext', '=0.0.7.6', :git => 'https://github.com/jquick/ruby-unf_ext.git'
   gem "build #{name}.gemspec", env: env
   gem "install #{name}-*.gem --no-document", env: env
 
