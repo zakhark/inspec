@@ -19,37 +19,30 @@ module Inspec::Resources
 
     include FileReader
 
-    def initialize(conf_path = nil, type = nil)
-      @conf_path = conf_path || '/etc/ssh/ssh_config'
-      typename = (@conf_path.include?('sshd') ? 'Server' : 'Client')
-      @type = type || "SSH #{typename} configuration #{conf_path}"
-      read_content
-    end
+    DEFAULT_UNIX_PATH = '/etc/ssh/ssh_config'.freeze
 
-    def content
-      read_content
+    def initialize(conf_path = DEFAULT_UNIX_PATH, type = get_type(conf_path))
+      @type   = type
+      @params = get_params(read_file_content(conf_path))
     end
 
     def params(*opts)
-      opts.inject(read_params) do |res, nxt|
+      opts.inject(@params) do |res, nxt|
         res.respond_to?(:key) ? res[nxt] : nil
       end
     end
 
-    def convert_hash(hash)
-      new_hash = {}
-      hash.each do |k, v|
-        new_hash[k.downcase] = v
-      end
-      new_hash
-    end
-
     def method_missing(name)
-      param = read_params[name.to_s.downcase]
-      return nil if param.nil?
-      # extract first value if we have only one value in array
-      return param[0] if param.length == 1
-      param
+      param = @params[name.to_s.downcase]
+
+      case
+      when param.nil?
+        param
+      when param.length == 1
+        param[0]
+      else
+        param
+      end
     end
 
     def to_s
@@ -58,21 +51,28 @@ module Inspec::Resources
 
     private
 
-    def read_content
-      return @content if defined?(@content)
-
-      @content = read_file_content(@conf_path)
+    def get_type(conf_path)
+      "SSH #{get_typename(conf_path)} configuration #{conf_path}"
     end
 
-    def read_params
-      return @params if defined?(@params)
-      return @params = {} if read_content.nil?
-      conf = SimpleConfig.new(
-        read_content,
+    def get_typename(conf_path)
+      conf_path.include?('sshd') ? 'Server' : 'Client'
+    end
+
+    def get_params(content)
+      return @params = {} if content.empty?
+
+      params = get_params_from_config(content)
+
+      params.keys.map(&:downcase).zip(params.values).to_h
+    end
+
+    def get_params_from_config(content)
+      SimpleConfig.new(
+        content,
         assignment_regex: /^\s*(\S+?)\s+(.*?)\s*$/,
         multiple_values: true,
-      )
-      @params = convert_hash(conf.params)
+      ).params
     end
   end
 
@@ -85,9 +85,10 @@ module Inspec::Resources
         its('Protocol') { should eq '2' }
       end
     "
+    DEFAULT_UNIX_PATH = '/etc/ssh/sshd_config'.freeze
 
-    def initialize(path = nil)
-      super(path || '/etc/ssh/sshd_config')
+    def initialize(path = DEFAULT_UNIX_PATH)
+      super(path)
     end
 
     def to_s

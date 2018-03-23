@@ -1,6 +1,4 @@
 # encoding: utf-8
-# author: Christoph Hartmann
-# author: Dominik Richter
 
 require 'helper'
 require 'inspec/resource'
@@ -34,16 +32,6 @@ describe 'Inspec::Resources::SshConf' do
         '/etc/ssh/ssh_host_dsa_key',
         '/etc/ssh/ssh_host_ecdsa_key',
       ]
-    end
-
-    it 'check bad path' do
-      resource = load_resource('sshd_config', '/etc/ssh/sshd_config_does_not_exist')
-      _(resource.resource_exception_message).must_equal "Can't find file: /etc/ssh/sshd_config_does_not_exist"
-    end
-
-    it 'check cannot read' do
-      resource = load_resource('sshd_config', '/etc/ssh/sshd_config_empty')
-      _(resource.resource_exception_message).must_equal "File is empty: /etc/ssh/sshd_config_empty"
     end
   end
 end
