@@ -85,6 +85,7 @@ module Inspec::Resources
         its('Protocol') { should eq '2' }
       end
     "
+
     DEFAULT_UNIX_PATH = '/etc/ssh/sshd_config'.freeze
 
     def initialize(path = DEFAULT_UNIX_PATH)
