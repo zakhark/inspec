@@ -76,9 +76,9 @@ The following examples show how to use this InSpec audit resource.
     end
 
 
-### Test that users with passwords that have not been used for 90 days do not
+### Test that users with passwords that have not been used for 90 days do not exist
 
-    describe aws_iam_users.where { password_last_used_days_ago > 90 } do
+    describe aws_iam_users.where { password_last_used_days_ago and password_last_used_days_ago > 90 } do
       it { should_not exist }
     end
 
